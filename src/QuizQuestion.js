@@ -1,34 +1,39 @@
 import React, { Component } from 'react';
-import {Panel, Radio, Button} from 'react-bootstrap';
+import {Panel, Radio, Button, ButtonGroup} from 'react-bootstrap';
 
 class QuizQuestion extends Component{
 	constructor(props){
 		super(props);
-		this.state = {
-			SeletcedCatorie: '',
-			QuestionNumber: 0,
-			SeletcedDifficulty: '',
+		this.state = this.getInitialState();
+	}
+	getInitialState(){
+		console.log('getInitialState()')
+		const initialState = {
+			SeletcedCatorie: 'any',
+			QuestionNumber: 5,
+			SeletcedDifficulty: 'any',
 			Working: true,
 			Question: [],
 			counterQuestion: 0,
 			Points: [],
 		}
+		return initialState;
+	}
+	resetState = () => {
+		this.setState(this.getInitialState());
 	}
 	componentWillReceiveProps(nextProps){
-		this.SetNewState(nextProps);
+		this.setState(this.props.passedVal)
+
 	}
 	componentDidMount(){
 		this.SetNewState(this.props);
 	}
-
 	shouldComponentUpdate(nextProps, nextState){
-		// console.log('shouldComponentUpdate()');
-		return !this.state.Working;
+		return !this.state.Working || !this.getInitialState().SeletcedCatorie === nextState.SeletcedCatorie;
 	}
-
-	 componentDidUpdate(prevProps, prevState) {
-	 	console.log('componentDidUpdate()')
-	 }
+	componentDidUpdate(prevProps, prevState) {
+	}
 
 	SetNewState(props){
 		this.setState({SeletcedCatorie: props.SeletcedCatorie});
@@ -37,24 +42,27 @@ class QuizQuestion extends Component{
 	}
 
 	GetQuestion = () => {
-		console.log('GetQuestion...');
-		const link = "https://opentdb.com/api.php?amount=2&category=10&difficulty=easy&type=multiple";
+		let link = `https://opentdb.com/api.php?amount=${this.state.QuestionNumber}`;
+		if (this.state.SeletcedCatorie !== 'any') link += `&category=${this.state.SeletcedCatorie}`;
+		if (this.state.SeletcedDifficulty !== 'any') link += `&difficulty=${this.state.SeletcedDifficulty}`;
+		link += `&type=multiple&encode=base64`;
+
 		fetch(link)
 			.then(resp => resp.json())
 			.then(resp => {
 				this.setState({Working: false});
+				console.log(resp.results);
 				this.setState({Question: resp.results});
 			});
-
 	}
 	changeCounterQuestion = () => {
-		console.log('changeCounterQuestion()')
 		const maxCounter = this.state.Question.length -1;
 		const currentCounter = this.state.counterQuestion;
 		if (maxCounter > currentCounter) this.setState({counterQuestion: currentCounter+1});
 	}
 	CheckAnswer = (event, correct) => {
 		const answer = event.target.value;
+		event.target.checked = false;
 		const addPoint = (correct === answer) ? 1:0;
 		this.setState({Points: [...this.state.Points, addPoint]}, ()=>{
 			this.changeCounterQuestion();
@@ -63,34 +71,44 @@ class QuizQuestion extends Component{
 	FinishQuiz = () =>{
 		console.log('FinishQuiz...')
 	}
+	ChangeSettings = () =>{
+		this.resetState();
+		this.props.handleSelect(2);
+	}
 
 	render() {
-		console.log('render()')
-		if(this.state.Working === true){
-			return <Button onClick={this.GetQuestion()}>Let's start</Button>
-		}
-		const currentCounter = this.state.counterQuestion;
+		if(this.state.Working === true) 
+			return <Button onClick={this.GetQuestion}>Let's start</Button>
 		const currentQuestion = this.state.Question[this.state.counterQuestion];
-		const button = (this.state.Points.length+1 >= this.state.Question.length) ? <Button onClick={this.FinishQuiz}>End Quiz</Button>:<Button onClick={this.changeCounterQuestion}>Next question</Button>
+		const button = (this.state.Points.length+1 >= this.state.Question.length) ? <Button onClick={this.FinishQuiz}>End Quiz</Button>:<Button onClick={this.changeCounterQuestion}>Next question</Button>;
+
 		if (this.state.Points.length === this.state.Question.length){
 			const Points = this.state.Points.reduce((p,n)=>{
 				return p+n;
 			});
-			return `You scored ${Points}!`
+			return(
+				<div>
+					<p>Your score {Points}!</p>
+					<Button onClick={this.ChangeSettings}>Change quiz settings</Button>
+					<Button onClick={this.resetState}>Play again</Button>
+				</div>
+			);
 		}
 		return (
 			<Panel>
-				<Panel.Heading>{currentQuestion.question}</Panel.Heading>
-				<Panel.Body onChange={(event) => this.CheckAnswer(event,currentQuestion.correct_answer)}>
-					{
-						[...currentQuestion.incorrect_answers, currentQuestion.correct_answer]
-						.sort(()=>{
-							return .5 - Math.random();
-						})
-						.map((answer, answerKey) => {
-							return <Radio name="answer" key={answerKey} value={answer}>{answer}</Radio>
-						})
-					}
+				<Panel.Heading>{atob(currentQuestion.question)}</Panel.Heading>
+				<Panel.Body>
+					<ButtonGroup onChange={(event) => this.CheckAnswer(event,currentQuestion.correct_answer)}>
+						{
+							[...currentQuestion.incorrect_answers, currentQuestion.correct_answer]
+							.sort(()=>{
+								return .5 - Math.random();
+							})
+							.map((answer, answerKey) => {
+								return <Radio name="answer" key={answerKey} value={answer}>{atob(answer)}</Radio>
+							})
+						}
+					</ButtonGroup>
 				</Panel.Body>
 				<Panel.Footer>
 					{button}
