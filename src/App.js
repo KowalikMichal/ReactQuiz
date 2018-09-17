@@ -4,14 +4,14 @@ import {Navbar, Grid, Row, Tabs, Tab, Button} from 'react-bootstrap';
 import QuizQuestion from './QuizQuestion.js';
 
 class App extends Component {
-		constructor(props, context) {
-		super(props, context);
-			this.state = {
-				key: 1,
-				SeletcedCatorie: 'any',
-				QuestionNumber: 5,
-				SeletcedDifficulty: 'any',
-			};
+	constructor(props, context) {
+	super(props, context);
+		this.state = {
+			key: 1,
+			SeletcedCatorie: 'any',
+			QuestionNumber: 5,
+			SeletcedDifficulty: 'any',
+		};
 	}
 	handleSelect = (key) => {
 		this.setState({key});

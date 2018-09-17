@@ -1,42 +1,48 @@
 import React, { Component } from 'react';
 import {Panel, Radio, Button, ButtonGroup} from 'react-bootstrap';
 import './Loading.css';
-import errorImage from './Error.jpeg';
+// import errorImage from './Error.jpeg';
 import './Error.css';
 
 class QuizQuestion extends Component{
 	constructor(props){
 		super(props);
 		this.state = this.getInitialState();
+		this.gameObj = {
+			CorrectAnswer: null,
+			AswerTime: null,
+			checkAnswer: function(userAnswer){
+				return (userAnswer === this.CorrectAnswer) ? 1:0;
+			},
+			init: function(correctAnswer){
+				this.CorrectAnswer = correctAnswer;
+			}
+		}
 	}
+
 	getInitialState(){
 		const initialState = {
 			SeletcedCatorie: 'any',
 			QuestionNumber: 5,
 			SeletcedDifficulty: 'any',
-			Working: true,
-			Question: [],
 			counterQuestion: 0,
-			Points: [],
-			inProgress: false,
-			ErrorCode: 0,
+			Question: [],
+			Points: 0,
+			ResponseCode: 0,
+			ShowLoader: false,
+			Finished: false,
 		}
 		return initialState;
 	}
 	resetState = () => {
 		this.setState(this.getInitialState());
 	}
-	componentWillReceiveProps(nextProps){
-		this.setState(this.props.passedVal)
 
+	componentWillReceiveProps(nextProps){
+		this.setState(this.props.passedVal);
 	}
 	componentDidMount(){
 		this.SetNewState(this.props);
-	}
-	shouldComponentUpdate(nextProps, nextState){
-		return !this.state.inProgress || !this.getInitialState().SeletcedCatorie === nextState.SeletcedCatorie;
-	}
-	componentDidUpdate(prevProps, prevState) {
 	}
 
 	SetNewState(props){
@@ -45,88 +51,81 @@ class QuizQuestion extends Component{
 		this.setState({SeletcedDifficulty: props.SeletcedDifficulty});
 	}
 
-	GetQuestion(){
-		let link = `https://opentdb.com/api.php?amount=${this.state.QuestionNumber}`;
-		if (this.state.SeletcedCatorie !== 'any') link += `&category=${this.state.SeletcedCatorie}`;
-		if (this.state.SeletcedDifficulty !== 'any') link += `&difficulty=${this.state.SeletcedDifficulty}`;
-		link += `&type=multiple&encode=base64`;
-
-		fetch(link)
-			.then(resp => resp.json())
-			.then(resp => {
-				if (resp.response_code !== 0) return this.setState({ErrorCode: resp.response_code});
-				this.setState({inProgress: false});
-				this.setState({Question: resp.results});
-			});
-	}
-	changeCounterQuestion = () => {
-		const maxCounter = this.state.Question.length -1;
-		const currentCounter = this.state.counterQuestion;
-		if (maxCounter > currentCounter) this.setState({counterQuestion: currentCounter+1});
-	}
-	CheckAnswer = (event, correct) => {
-		const answer = event.target.value;
-		event.target.checked = false;
-		const addPoint = (correct === answer) ? 1:0;
-		this.setState({Points: [...this.state.Points, addPoint]}, ()=>{
-			this.changeCounterQuestion();
-		});
-	}
-	FinishQuiz = () =>{
-		console.log('FinishQuiz...')
-	}
 	ChangeSettings = () =>{
 		this.resetState();
 		this.props.handleSelect(2);
 	}
-	Loading(){
-		return(
-		<div id="loading">
-			<ul className="bokeh">
-				<li></li>
-				<li></li>
-				<li></li>
-			</ul>
-		</div>
-		);
+
+//new function
+	StartQuiz = () =>{
+		this.setState({ShowLoader: true});
+		this.GetQuestion();
+	}
+	GetQuestion(){
+		let url = `https://opentdb.com/api.php?amount=${this.state.QuestionNumber}`;
+		if (this.state.SeletcedCatorie !== 'any') url += `&category=${this.state.SeletcedCatorie}`;
+		if (this.state.SeletcedDifficulty !== 'any') url += `&difficulty=${this.state.SeletcedDifficulty}`;
+		url += `&type=multiple&encode=base64`;
+
+		fetch(url)
+			.then(resp => resp.json())
+			.then(resp => {
+				this.setState({
+					ShowLoader: false,
+					Question: resp.results,
+					ResponseCode: resp.response_code
+				});
+			});
+	}
+
+	NextQuestion = (event, buttonAction) =>{
+		const userAnswer = event.target.closest('.panel').querySelector('input[type="radio"]:checked').value;
+		const answerPoint = this.gameObj.checkAnswer(userAnswer);
+		event.target.closest('.panel').querySelector('input[type="radio"]:checked').checked = false;
+
+		if (buttonAction === 'next'){
+			this.setState({
+				Points: this.state.Points + answerPoint,
+				counterQuestion: this.state.counterQuestion + 1,
+			});
+		}
+		else{
+			this.setState({
+				Points: this.state.Points + answerPoint,
+				Finished: true,
+			});
+		}
 	}
 
 	render() {
-		if (this.state.inProgress === true){
-			this.GetQuestion();
-			return this.Loading();
+		if(this.state.ShowLoader){
+			return this.Loader();
 		}
-		if (this.state.ErrorCode !== 0){
-			return(
-				<div className="errorDiv">
-					<p>Oh no! Something has gone wrong <span role="img" aria-label=":(">😟</span></p>
-				</div>
-			)
+		if (this.state.Finished){
+			return this.FinishedQuiz(this.state.Points);
 		}
-		if(this.state.Question.length === 0) {
-			return <Button onClick={() => {
-				this.setState({inProgress: true});
-			}}>Let's start</Button>
+		if (this.state.Question.length === 0){
+			return <Button onClick={this.StartQuiz}>Play game</Button>;		
 		}
-		const currentQuestion = this.state.Question[this.state.counterQuestion];
-		const button = (this.state.Points.length+1 >= this.state.Question.length) ? <Button onClick={this.FinishQuiz}>End Quiz</Button>:<Button onClick={this.changeCounterQuestion}>Next question</Button>;
-		if (this.state.Points.length === this.state.Question.length){
-			const Points = this.state.Points.reduce((p,n)=>{
-				return p+n;
-			});
-			return(
-				<div>
-					<p>Your score {Points}!</p>
-					<Button onClick={this.ChangeSettings}>Change quiz settings</Button>
-					<Button onClick={this.resetState}>Play again</Button>
-				</div>
-			);
+		if (this.state.ResponseCode === 200 || this.state.ResponseCode === 0){
+			const currentQuestion = this.state.Question[this.state.counterQuestion];
+			return this.DisplayGameQuestion(currentQuestion);
 		}
-		return (
+		else{
+			return this.DisplayError();
+		}
+	}
+
+	DisplayGameQuestion(currentQuestion){
+		this.gameObj.init(currentQuestion.correct_answer);
+		const buttonAction = (this.state.counterQuestion +1 >= this.state.Question.length) ? 'end':'next';
+		const buttonTextContetnt = (buttonAction === 'end') ? 'Finish quiz':'Next question';
+
+		return(
 			<Panel>
 				<Panel.Heading>{atob(currentQuestion.question)}</Panel.Heading>
 				<Panel.Body>
-					<ButtonGroup onChange={(event) => this.CheckAnswer(event,currentQuestion.correct_answer)}>
+					<ButtonGroup>
 						{
 							[...currentQuestion.incorrect_answers, currentQuestion.correct_answer]
 							.sort(()=>{
@@ -139,11 +138,43 @@ class QuizQuestion extends Component{
 					</ButtonGroup>
 				</Panel.Body>
 				<Panel.Footer className="text-center">
-					{button}
+						<Button onClick={(event) => this.NextQuestion(event, buttonAction)} >{buttonTextContetnt}</Button>
 				</Panel.Footer>
 			</Panel>
+		);
+	}
+	Loader(){
+		return(
+			<div id="loading">
+				<ul className="bokeh">
+					<li></li>
+					<li></li>
+					<li></li>
+				</ul>
+			</div>
+		);
+	}
+	DisplayError(){
+		return(
+		<div className="errorDiv">
+			<p>Oh no! Something has gone wrong <span role="img" aria-label=":(">😟</span></p>
+		</div>
+		);
+	}
+
+	FinishedQuiz(Points){
+		return(
+			<div>
+				<p>Your score {Points}!</p>
+				<Button onClick={this.ChangeSettings}>Change quiz settings</Button>
+				<Button onClick={this.resetState}>Play again</Button>
+			</div>
 		);
 	}
 }
 
 export default QuizQuestion;
+
+
+
+					
