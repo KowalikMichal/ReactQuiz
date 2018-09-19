@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-export class timer extends Component {
+export class Timer extends Component{
 	constructor(props){
 		super(props)
 		this.state = {
@@ -16,7 +16,7 @@ export class timer extends Component {
 
 	TickTock(){
 		const self = this;
-		var TickTock = setInterval(function(){
+		let TickTock = setInterval(function(){
 			self.setState({timeLeft: self.state.timeLeft-1}, ()=>{
 				if (self.state.timeLeft <= 0) self.TimerEnd();
 			});
@@ -34,10 +34,10 @@ export class timer extends Component {
 			this.TickTock();
 		})	
 	}
-
 	componentWillUnmount(){
 		clearInterval(this.state.TickTock);
 	}
+
 	render() {
 		return (
 			this.state.timeLeft
@@ -45,5 +45,4 @@ export class timer extends Component {
 	}
 }
 
-
-export default timer;
+export default Timer;

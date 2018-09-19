@@ -43,21 +43,19 @@ class QuizQuestion extends Component{
 		this.setState(this.props.passedVal);
 	}
 	componentDidMount(){
-		this.SetNewState(this.props);
+		this.SetNewState(this.props.passedVal);
 	}
 
 	SetNewState(props){
-		this.setState({SeletcedCatorie: props.SeletcedCatorie});
-		this.setState({QuestionNumber: props.QuestionNumber});
-		this.setState({SeletcedDifficulty: props.SeletcedDifficulty});
+		this.setState({
+			SeletcedCatorie: props.SeletcedCatorie,
+			QuestionNumber: props.QuestionNumber,
+			SeletcedDifficulty: props.SeletcedDifficulty,
+		});
 	}
 
-	ChangeSettings = () =>{
-		this.resetState();
-		this.props.handleSelect(2);
-	}
+//game function
 
-//new function
 	StartQuiz = () =>{
 		this.setState({ShowLoader: true});
 		this.GetQuestion();
@@ -79,7 +77,7 @@ class QuizQuestion extends Component{
 			});
 	}
 
-	NextQuestion = (event, buttonAction) =>{
+	NextQuestion = (buttonAction) =>{
 		const userAnswer = document.querySelector('input[type="radio"]:checked');
 		let answerPoint;
 		if (userAnswer){
@@ -105,7 +103,12 @@ class QuizQuestion extends Component{
 
 	informTimeEnd= ()=>{
 		const buttonAction = (this.state.counterQuestion +1 >= this.state.Question.length) ? 'end':'next';
-		this.NextQuestion(null, buttonAction);
+		this.NextQuestion(buttonAction);
+	}
+
+	ChangeSettings = () =>{
+		this.resetState();
+		this.props.handleSelect(2);
 	}
 
 	render() {
@@ -151,7 +154,7 @@ class QuizQuestion extends Component{
 				</Panel.Body>
 				<Panel.Footer className="text-center">
 						Time left: <Timer passedVal={20} informTimeEnd={this.informTimeEnd}/>
-						<Button onClick={() => this.NextQuestion(buttonAction)} >{buttonTextContetnt}</Button>
+						<Button onClick={() => this.NextQuestion(buttonAction)}>{buttonTextContetnt}</Button>
 				</Panel.Footer>
 			</Panel>
 		);
