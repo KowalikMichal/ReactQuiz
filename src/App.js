@@ -24,7 +24,7 @@ class App extends Component {
 		this.setState({ QuestionNumber: event.target.value});
 	}
 	SeletcedDifficulty = (event) => {
-		this.setState({ SeletcedDifficulty: event.target.value});
+		this.setState({SeletcedDifficulty: event.target.value});
 	}
 	showValue = () => {
 		console.log(this.state);

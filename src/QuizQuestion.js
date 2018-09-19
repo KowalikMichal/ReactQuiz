@@ -3,6 +3,8 @@ import {Panel, Radio, Button, ButtonGroup} from 'react-bootstrap';
 import './Loading.css';
 // import errorImage from './Error.jpeg';
 import './Error.css';
+import Timer from './Timer.js';
+
 
 class QuizQuestion extends Component{
 	constructor(props){
@@ -10,7 +12,6 @@ class QuizQuestion extends Component{
 		this.state = this.getInitialState();
 		this.gameObj = {
 			CorrectAnswer: null,
-			AswerTime: null,
 			checkAnswer: function(userAnswer){
 				return (userAnswer === this.CorrectAnswer) ? 1:0;
 			},
@@ -79,10 +80,15 @@ class QuizQuestion extends Component{
 	}
 
 	NextQuestion = (event, buttonAction) =>{
-		const userAnswer = event.target.closest('.panel').querySelector('input[type="radio"]:checked').value;
-		const answerPoint = this.gameObj.checkAnswer(userAnswer);
-		event.target.closest('.panel').querySelector('input[type="radio"]:checked').checked = false;
-
+		const userAnswer = document.querySelector('input[type="radio"]:checked');
+		let answerPoint;
+		if (userAnswer){
+			userAnswer.checked = false;
+			answerPoint = this.gameObj.checkAnswer(userAnswer.value);
+		}
+		else{
+			answerPoint = 0;
+		}
 		if (buttonAction === 'next'){
 			this.setState({
 				Points: this.state.Points + answerPoint,
@@ -95,6 +101,11 @@ class QuizQuestion extends Component{
 				Finished: true,
 			});
 		}
+	}
+
+	informTimeEnd= ()=>{
+		const buttonAction = (this.state.counterQuestion +1 >= this.state.Question.length) ? 'end':'next';
+		this.NextQuestion(null, buttonAction);
 	}
 
 	render() {
@@ -118,6 +129,7 @@ class QuizQuestion extends Component{
 
 	DisplayGameQuestion(currentQuestion){
 		this.gameObj.init(currentQuestion.correct_answer);
+
 		const buttonAction = (this.state.counterQuestion +1 >= this.state.Question.length) ? 'end':'next';
 		const buttonTextContetnt = (buttonAction === 'end') ? 'Finish quiz':'Next question';
 
@@ -138,7 +150,8 @@ class QuizQuestion extends Component{
 					</ButtonGroup>
 				</Panel.Body>
 				<Panel.Footer className="text-center">
-						<Button onClick={(event) => this.NextQuestion(event, buttonAction)} >{buttonTextContetnt}</Button>
+						Time left: <Timer passedVal={20} informTimeEnd={this.informTimeEnd}/>
+						<Button onClick={() => this.NextQuestion(buttonAction)} >{buttonTextContetnt}</Button>
 				</Panel.Footer>
 			</Panel>
 		);
