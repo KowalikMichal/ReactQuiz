@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import {Panel, Radio, Button, ButtonGroup} from 'react-bootstrap';
+import {Panel, Button, ButtonGroup} from 'react-bootstrap';
 import './Loading.css';
 // import errorImage from './Error.jpeg';
 import './Error.css';
+import './Option.css';
 import Timer from './Timer.js';
 
 
@@ -74,6 +75,12 @@ class QuizQuestion extends Component{
 					Question: resp.results,
 					ResponseCode: resp.response_code
 				});
+			})
+			.catch(error => {
+				this.setState({
+					ShowLoader: false,
+					ResponseCode: 500
+				});
 			});
 	}
 
@@ -112,6 +119,9 @@ class QuizQuestion extends Component{
 	}
 
 	render() {
+		if(this.state.ResponseCode === 500){
+			return this.DisplayError();
+		}
 		if(this.state.ShowLoader){
 			return this.Loader();
 		}
@@ -121,12 +131,9 @@ class QuizQuestion extends Component{
 		if (this.state.Question.length === 0){
 			return <Button onClick={this.StartQuiz}>Play game</Button>;		
 		}
-		if (this.state.ResponseCode === 200 || this.state.ResponseCode === 0){
+		else{
 			const currentQuestion = this.state.Question[this.state.counterQuestion];
 			return this.DisplayGameQuestion(currentQuestion);
-		}
-		else{
-			return this.DisplayError();
 		}
 	}
 
@@ -147,7 +154,12 @@ class QuizQuestion extends Component{
 								return .5 - Math.random();
 							})
 							.map((answer, answerKey) => {
-								return <Radio name="answer" key={answerKey} value={answer}>{atob(answer)}</Radio>
+								return(
+								<div className="radioButton" key={answerKey}>
+									<input type="radio" name="answer" value={answer} id={answerKey} className="radio" />
+									<label htmlFor={answerKey} className="radioOption">{atob(answer)}</label>
+								</div>
+								);
 							})
 						}
 					</ButtonGroup>
@@ -174,6 +186,7 @@ class QuizQuestion extends Component{
 		return(
 		<div className="errorDiv">
 			<p>Oh no! Something has gone wrong <span role="img" aria-label=":(">😟</span></p>
+			<Button onClick={this.resetState}>Try again</Button>
 		</div>
 		);
 	}

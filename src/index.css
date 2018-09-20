@@ -8,4 +8,6 @@ body{
 	radial-gradient(circle at 0    50%, white 5%, #27d0d2 6%, #27d0d2 15%, white 16%, white 20%, #27d0d2 21%, #27d0d2 30%, white 31%, white 35%, #27d0d2 36%, #27d0d2 45%, white 46%, white 49%, transparent 50%, transparent);
 	background-size:100px 50px;
 	font-family: sans-serif;
+	line-height: 2.5em !important;
+	font-weight: bold;
 }
