@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Panel, Button, ButtonGroup} from 'react-bootstrap';
+// import {Panel, Button, ButtonGroup} from 'react-bootstrap';
 import './Loading.css';
 // import errorImage from './Error.jpeg';
 import './Error.css';
@@ -129,7 +129,7 @@ class QuizQuestion extends Component{
 			return this.FinishedQuiz(this.state.Points);
 		}
 		if (this.state.Question.length === 0){
-			return <Button onClick={this.StartQuiz}>Play game</Button>;		
+			return <Button onClick={this.StartQuiz}>Play game</Button>;
 		}
 		else{
 			const currentQuestion = this.state.Question[this.state.counterQuestion];
@@ -203,7 +203,3 @@ class QuizQuestion extends Component{
 }
 
 export default QuizQuestion;
-
-
-
-					
