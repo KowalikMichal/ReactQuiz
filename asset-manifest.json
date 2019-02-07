@@ -1,11 +1,13 @@
 {
-  "main.css": "static/css/main.73ef8c38.css",
-  "main.css.map": "static/css/main.73ef8c38.css.map",
-  "main.js": "static/js/main.f1e56d4e.js",
-  "main.js.map": "static/js/main.f1e56d4e.js.map",
-  "static\\media\\glyphicons-halflings-regular.eot": "static/media/glyphicons-halflings-regular.f4769f9b.eot",
-  "static\\media\\glyphicons-halflings-regular.svg": "static/media/glyphicons-halflings-regular.89889688.svg",
-  "static\\media\\glyphicons-halflings-regular.ttf": "static/media/glyphicons-halflings-regular.e18bbf61.ttf",
-  "static\\media\\glyphicons-halflings-regular.woff": "static/media/glyphicons-halflings-regular.fa277232.woff",
-  "static\\media\\glyphicons-halflings-regular.woff2": "static/media/glyphicons-halflings-regular.448c34a5.woff2"
+  "main.css": "/ReactQuiz/static/css/main.b28d247e.chunk.css",
+  "main.js": "/ReactQuiz/static/js/main.41f7ce12.chunk.js",
+  "main.js.map": "/ReactQuiz/static/js/main.41f7ce12.chunk.js.map",
+  "static/js/1.ea989959.chunk.js": "/ReactQuiz/static/js/1.ea989959.chunk.js",
+  "static/js/1.ea989959.chunk.js.map": "/ReactQuiz/static/js/1.ea989959.chunk.js.map",
+  "runtime~main.js": "/ReactQuiz/static/js/runtime~main.c9206fed.js",
+  "runtime~main.js.map": "/ReactQuiz/static/js/runtime~main.c9206fed.js.map",
+  "static/css/main.b28d247e.chunk.css.map": "/ReactQuiz/static/css/main.b28d247e.chunk.css.map",
+  "index.html": "/ReactQuiz/index.html",
+  "precache-manifest.d83a0aa3f0b34cbda496c12fc9c9e66f.js": "/ReactQuiz/precache-manifest.d83a0aa3f0b34cbda496c12fc9c9e66f.js",
+  "service-worker.js": "/ReactQuiz/service-worker.js"
 }
